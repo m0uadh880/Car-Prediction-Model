@@ -78,44 +78,80 @@ async def scrape_automobile(url, session, max_retries=5):
                 # Parsing HTML content
                 soup1 = BeautifulSoup(html_content, "html.parser")
                 soup2 = BeautifulSoup(soup1.prettify(), 'html.parser')
+
+                try:
+                    title = soup2.select_one('#content_container > div.occasion-details-v2 > h1').text.strip()
+                    title = ' '.join(title.split())
+                    car.append(title)
+                except Exception as e:
+                    car.append("") 
+
+                try:
+                    price = str(soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.price-box > div').text[:-18].strip()).replace(' ','')
+                    car.append(price)
+                except Exception as e:
+                    car.append("") 
                 
+                try:
+                    manufacturer = next((manuf for manuf in manufacturers_list if manuf.lower() in title.lower()), 'Other')
+                    car.append(manufacturer)
+                except Exception as e:
+                    car.append("")           
 
-                title = soup2.select_one('#content_container > div.occasion-details-v2 > h1').text.strip()
-                title = ' '.join(title.split())
-                car.append(title)
-
-                price = str(soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.price-box > div').text[:-18].strip()).replace(' ','')
-                car.append(price)
+                try:
+                    carroserie = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(7) > span.spec-value').text.strip()
+                    car.append(carroserie)
+                except Exception as e:
+                    car.append("")
+                              
+                try:
+                    energie = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(3) > span.spec-value').text.strip()
+                    car.append(energie)
+                except Exception as e:
+                    car.append("")
                 
-                manufacturer = next((manuf for manuf in manufacturers_list if manuf.lower() in title.lower()), 'Other')
-                car.append(manufacturer)
-
-                carroserie = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(7) > span.spec-value').text.strip()
-                car.append(carroserie)
+                try:
+                    Puissance_fiscale = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(5) > span.spec-value').text.replace('cv','').strip()
+                    car.append(Puissance_fiscale)
+                except Exception as e:
+                    car.append("")
                 
-                energie = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(3) > span.spec-value').text.strip()
-                car.append(energie)
-
-                Puissance_fiscale = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(5) > span.spec-value').text.replace('cv','').strip()
-                car.append(Puissance_fiscale)
-
-                Boite = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(4) > span.spec-value').text.strip()
-                car.append(Boite)
+                try:
+                    Boite = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(4) > span.spec-value').text.strip()
+                    car.append(Boite)
+                except Exception as e:
+                    car.append("")         
                 
-                transmission = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(6) > span.spec-value').text.strip()
-                car.append(transmission)
-         
-                kilo = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(1) > span.spec-value').text.replace('km','').strip().replace(' ','')
-                car.append(kilo)
+                try:
+                    transmission = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(6) > span.spec-value').text.strip()
+                    car.append(transmission)
+                except Exception as e:
+                    car.append("")
                 
-                annee = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(2) > span.spec-value').text.strip().split('.')[1]
-                car.append(annee)
-
-                age = datetime.now().year -  int(annee)
-                car.append(age)
-
-                Inserée = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(8) > span.spec-value').text.strip()
-                car.append(Inserée)
+                try:
+                    kilo = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(1) > span.spec-value').text.replace('km','').strip().replace(' ','')
+                    car.append(kilo)
+                except Exception as e:
+                    car.append("")
+                               
+                try:
+                    annee = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(2) > span.spec-value').text.strip().split('.')[1]
+                    car.append(annee)
+                except Exception as e:
+                    car.append("")
+                
+                try:
+                    age = datetime.now().year -  int(annee)
+                    car.append(age)
+                except Exception as e:
+                    car.append("")
+                
+                try:
+                    Inserée = soup2.select_one('#content_container > div.occasion-details-v2 > div:nth-child(5) > div.col-md-4 > div > div:nth-child(1) > div.main-specs > ul > li:nth-child(8) > span.spec-value').text.strip()
+                    car.append(Inserée)
+                except Exception as e:
+                    car.append("")
+                
 
                 automobile_data_list.append(car)
                 break
